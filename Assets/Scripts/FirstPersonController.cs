@@ -13,6 +13,8 @@ public class SimpleFirstPersonController : MonoBehaviour
     private float verticalVelocity;
     private float cameraPitch = 0f;
 
+    public bool IsSitting { get; private set; } = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -23,7 +25,16 @@ public class SimpleFirstPersonController : MonoBehaviour
     void Update()
     {
         HandleMouseLook();
-        HandleMovement();
+
+        if (!IsSitting)
+        {
+            HandleMovement();
+        }
+    }
+
+    public void SetSitting(bool sitting)
+    {
+        IsSitting = sitting;
     }
 
     void HandleMouseLook()
