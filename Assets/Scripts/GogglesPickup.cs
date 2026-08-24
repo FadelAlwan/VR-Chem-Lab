@@ -7,7 +7,6 @@ public class GogglesPickup : MonoBehaviour, IInteractable
     {
         SafetyGearManager.Instance.EquipGoggles();
         ProcedureManager.Instance?.ReportEvent("GogglesEquipped");
-        AssessmentManager.Instance?.ReportEvent("GogglesEquipped");
         gameObject.SetActive(false);
     }
 }

@@ -1,22 +1,40 @@
 using UnityEngine;
+using TMPro;
+using System.Collections.Generic;
 
-// Attach to the Beaker. Cups (ChemicalCup.cs) call AddChemical() on this when poured.
-// Mixing both chemicals produces a new color — a simple, clear stand-in for "a reaction happened".
+// Attach to the Beaker. Cups (CupPourController.cs) call AddChemical() on this when poured.
+// Supports MULTIPLE possible reactions in a single beaker: define a list of Recipes
+// (e.g. A+B=Green, D+E=Red) and the beaker figures out which one matches whatever
+// two chemicals the student pours in, regardless of order.
 public class BeakerMixer : MonoBehaviour
 {
+    [System.Serializable]
+    public class ReactionRecipe
+    {
+        public string chemicalIdA;
+        public string chemicalIdB;
+        public Color resultColor;
+        public string label; // optional, just for your own reference in the Inspector
+    }
+
+    [Header("Possible Reactions This Beaker Can Produce")]
+    public ReactionRecipe[] recipes;
+
     [Header("Visual")]
     public Renderer liquidRenderer;
     public Color emptyColor = Color.clear;
-    public Color resultColor = new Color(0.3f, 0.8f, 0.3f); // green = "reaction complete"
+    public Color invalidMixColor = new Color(0.5f, 0.5f, 0.5f); // shown if the two chemicals don't match any recipe
 
     [Header("Feedback")]
-    public GameObject successPanel;      // shown when both chemicals are mixed correctly
-    public GameObject wrongOrderWarning; // shown if the same cup is poured twice
+    public GameObject successPanel;
+    public TextMeshProUGUI errorText; // shows "Wrong combination!" clearly on screen
+    public float errorDuration = 2.5f;
 
-    private bool hasChemicalA = false;
-    private bool hasChemicalB = false;
+    private readonly List<(string id, Color color)> pouredChemicals = new List<(string, Color)>();
+    private bool isComplete = false;
 
-    public bool IsComplete => hasChemicalA && hasChemicalB;
+    public bool IsComplete => isComplete;
+    public float CurrentLevel { get; private set; } = 0f;
 
     private float liquidBaseScaleY;
     private float liquidBasePosY;
@@ -29,69 +47,103 @@ public class BeakerMixer : MonoBehaviour
             liquidBasePosY = liquidRenderer.transform.localPosition.y;
         }
         SetColor(emptyColor);
-        SetLevel(0f, 0f, emptyColor); // start visually empty
+        SetLevel(0f, 0f, emptyColor);
     }
 
-    // id should be "A" or "B" — each cup passes its own id.
+    // Called by CupPourController once a pour finishes.
     public void AddChemical(string id, Color chemicalColor)
     {
-        if (IsComplete) return; // already finished, ignore further pours
+        if (isComplete) return;
 
-        if (id == "A")
+        // Same chemical poured twice in a row — treat as a mistake.
+        foreach (var poured in pouredChemicals)
         {
-            if (hasChemicalA)
+            if (poured.id == id)
             {
-                ShowWrongOrderWarning();
+                ShowError($"You already added {id}. Try a different chemical.");
                 return;
             }
-            hasChemicalA = true;
-        }
-        else if (id == "B")
-        {
-            if (hasChemicalB)
-            {
-                ShowWrongOrderWarning();
-                return;
-            }
-            hasChemicalB = true;
         }
 
-        // Show the single chemical's color first if it's the only one added so far.
-        if (!IsComplete)
+        pouredChemicals.Add((id, chemicalColor));
+
+        if (pouredChemicals.Count == 1)
         {
+            // Preview the first chemical's own color while waiting for the second.
             SetColor(chemicalColor);
+            return;
         }
-        else
+
+        if (pouredChemicals.Count >= 2)
         {
-            CompleteReaction();
+            string firstId = pouredChemicals[0].id;
+            string secondId = pouredChemicals[1].id;
+            ReactionRecipe match = FindMatchingRecipe(firstId, secondId);
+            if (match != null)
+            {
+                CompleteReaction(match.resultColor);
+            }
+            else
+            {
+                // The two chemicals poured don't form any known reaction.
+                SetColor(invalidMixColor);
+                Debug.Log($"No known reaction between '{firstId}' and '{secondId}'.");
+                ShowError($"Incorrect reaction! {firstId} and {secondId} don't react — check the chart on the wall.");
+
+                // Reset so the student can immediately try a correct pair again.
+                pouredChemicals.Clear();
+                Invoke(nameof(ResetVisualAfterMistake), errorDuration);
+            }
         }
     }
 
-    void CompleteReaction()
+    void ResetVisualAfterMistake()
     {
+        if (!isComplete)
+        {
+            SetColor(emptyColor);
+            SetLevel(0f, 0f, emptyColor);
+        }
+    }
+
+    ReactionRecipe FindMatchingRecipe(string idOne, string idTwo)
+    {
+        foreach (var recipe in recipes)
+        {
+            bool matchesForward = recipe.chemicalIdA == idOne && recipe.chemicalIdB == idTwo;
+            bool matchesReverse = recipe.chemicalIdA == idTwo && recipe.chemicalIdB == idOne;
+            if (matchesForward || matchesReverse)
+            {
+                return recipe;
+            }
+        }
+        return null;
+    }
+
+    void CompleteReaction(Color resultColor)
+    {
+        isComplete = true;
         SetColor(resultColor);
+        SetLevel(1f, 0f, resultColor); // ensure the level visually reads as "full"
         Debug.Log("Reaction complete — new compound formed.");
 
         if (successPanel != null) successPanel.SetActive(true);
 
         ProcedureManager.Instance?.ReportEvent("ReactionComplete");
-        AssessmentManager.Instance?.ReportEvent("ReactionComplete");
     }
 
-    void ShowWrongOrderWarning()
+    void ShowError(string message)
     {
-        Debug.Log("That chemical was already added.");
-        if (wrongOrderWarning != null)
-        {
-            wrongOrderWarning.SetActive(true);
-            Invoke(nameof(HideWarning), 2f);
-        }
-        AssessmentManager.Instance?.ReportEvent("MixMistake");
+        if (errorText == null) return;
+        errorText.text = message;
+        errorText.gameObject.SetActive(true);
+        CancelInvoke(nameof(HideError));
+        Invoke(nameof(HideError), errorDuration);
     }
 
-    void HideWarning()
+    void HideError()
     {
-        if (wrongOrderWarning != null) wrongOrderWarning.SetActive(false);
+        if (errorText != null) errorText.gameObject.SetActive(false);
     }
 
     void SetColor(Color c)
@@ -102,18 +154,13 @@ public class BeakerMixer : MonoBehaviour
         }
     }
 
-    public float CurrentLevel { get; private set; } = 0f; // 0 = empty, 1 = completely full (both chemicals)
-
     // Called by CupPourController every frame during a pour to visually raise the
     // liquid level AND tint it toward the chemical's color as it fills.
-    // baseLevel = the level already filled by previous pours (0 for the first cup,
-    // ~0.5 for the second cup). frac = 0→1 progress of THIS pour. Each cup fills a
-    // fixed share (0.5, assuming two cups total) on top of the base level.
     public void SetLevel(float baseLevel, float frac, Color previewColor)
     {
         if (liquidRenderer == null) return;
 
-        const float perCupShare = 0.5f; // each of the 2 cups fills half the beaker
+        const float perCupShare = 0.5f;
         float t = Mathf.Clamp01(baseLevel + frac * perCupShare);
         CurrentLevel = t;
 
@@ -130,11 +177,11 @@ public class BeakerMixer : MonoBehaviour
         SetColor(previewColor);
     }
 
-    // Call to let the player redo the experiment.
+    // Call to let the player redo the experiment with fresh chemicals.
     public void ResetBeaker()
     {
-        hasChemicalA = false;
-        hasChemicalB = false;
+        pouredChemicals.Clear();
+        isComplete = false;
         SetColor(emptyColor);
         SetLevel(0f, 0f, emptyColor);
         if (successPanel != null) successPanel.SetActive(false);

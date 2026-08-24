@@ -113,7 +113,6 @@ public class TitrationController : MonoBehaviour, IInteractable
         {
             Debug.Log($"Titration correct! Stopped at {amountAdded:F2}, target was {equivalencePoint:F2}.");
             ProcedureManager.Instance?.ReportEvent("TitrationCorrect");
-            AssessmentManager.Instance?.ReportEvent("TitrationCorrect");
         }
         else
         {
@@ -124,7 +123,6 @@ public class TitrationController : MonoBehaviour, IInteractable
                 Invoke(nameof(HideOvershootWarning), 2.5f);
             }
             ProcedureManager.Instance?.ReportEvent("TitrationMistake");
-            AssessmentManager.Instance?.ReportEvent("TitrationMistake");
         }
     }
 

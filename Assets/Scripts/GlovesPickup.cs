@@ -7,7 +7,6 @@ public class GlovesPickup : MonoBehaviour, IInteractable
     {
         SafetyGearManager.Instance.EquipGloves();
         ProcedureManager.Instance?.ReportEvent("GlovesEquipped");
-        AssessmentManager.Instance?.ReportEvent("GlovesEquipped");
         gameObject.SetActive(false);
     }
 }

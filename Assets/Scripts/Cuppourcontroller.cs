@@ -33,8 +33,18 @@ public class CupPourController : MonoBehaviour, IInteractable
     public Transform cupLiquidVisual;    // child mesh inside the cup representing its own liquid (optional)
     public ParticleSystem pourParticles; // child Particle System at the cup's spout/rim (optional)
 
+    [Header("Requires Sitting")]
+    public SitInteractable requiredSitZone; // the player must be seated here to interact with this cup
+
     private State state = State.Idle;
+
+    // Shared across ALL cups — true while any cup is mid-animation (moving/pouring),
+    // so a second cup can't be picked up or poured at the same time.
+    private static bool AnyCupBusy = false;
     private Vector3 cupLiquidStartScale;
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+    private Transform originalParent;
 
     void Start()
     {
@@ -42,6 +52,10 @@ public class CupPourController : MonoBehaviour, IInteractable
         {
             cupLiquidStartScale = cupLiquidVisual.localScale;
         }
+
+        originalPosition = transform.position;
+        originalRotation = transform.rotation;
+        originalParent = transform.parent;
     }
 
     void Update()
@@ -57,6 +71,16 @@ public class CupPourController : MonoBehaviour, IInteractable
 
     public string GetPrompt()
     {
+        if (requiredSitZone != null && !requiredSitZone.IsPlayerSeated)
+        {
+            return ""; // no prompt at all if the player isn't seated at this station
+        }
+
+        if (AnyCupBusy && state == State.Idle)
+        {
+            return ""; // another cup is currently animating/pouring — wait for it
+        }
+
         switch (state)
         {
             case State.Idle: return "Press E to pick up";
@@ -68,6 +92,16 @@ public class CupPourController : MonoBehaviour, IInteractable
 
     public void Interact(GameObject player)
     {
+        if (requiredSitZone != null && !requiredSitZone.IsPlayerSeated)
+        {
+            return; // ignore interaction entirely if not seated
+        }
+
+        if (AnyCupBusy && state == State.Idle)
+        {
+            return; // another cup is currently animating/pouring — ignore pickup
+        }
+
         if (state == State.Idle)
         {
             PickUp();
@@ -95,6 +129,7 @@ public class CupPourController : MonoBehaviour, IInteractable
     IEnumerator MoveToPourAndPour()
     {
         state = State.MovingToPour;
+        AnyCupBusy = true;
 
         // Detach from the hand so we can move in world space toward the fixed pour point.
         transform.SetParent(null);
@@ -172,9 +207,40 @@ public class CupPourController : MonoBehaviour, IInteractable
         // Report this specific cup's pour as its own step event (in addition to
         // whatever BeakerMixer reports for the final reaction).
         ProcedureManager.Instance?.ReportEvent($"CupPoured_{chemicalId}");
-        AssessmentManager.Instance?.ReportEvent($"CupPoured_{chemicalId}");
 
         state = State.Finished;
+        AnyCupBusy = false;
         gameObject.SetActive(false);
+    }
+
+    // Called by SitInteractable when the player stands up, to bring this cup back
+    // to its original position/state so the experiment can be redone from scratch.
+    public void ResetCup()
+    {
+        StopAllCoroutines();
+
+        // Safety net: if this cup was mid-pour when reset (e.g. player stood up
+        // early), make sure it doesn't leave the shared lock stuck on.
+        if (state == State.MovingToPour || state == State.Pouring)
+        {
+            AnyCupBusy = false;
+        }
+
+        gameObject.SetActive(true);
+        state = State.Idle;
+
+        transform.SetParent(originalParent);
+        transform.position = originalPosition;
+        transform.rotation = originalRotation;
+
+        if (cupLiquidVisual != null)
+        {
+            cupLiquidVisual.localScale = cupLiquidStartScale;
+        }
+
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.enabled = true;
+
+        if (pourParticles != null) pourParticles.Stop();
     }
 }
