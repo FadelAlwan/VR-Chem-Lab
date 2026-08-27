@@ -16,7 +16,7 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 
 ## 📸 Screenshots
 
-| Lab Overview | Safety Cabinet |
+| Safety Cabinet |
 |---|---|
 | ![Safety cabinet](screenshots/safety.png) |
 
