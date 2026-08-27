@@ -67,7 +67,7 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 |---|---|
 | `W` `A` `S` `D` | Move |
 | Mouse | Look around |
-| `E` | Interact (pick up / use / sit / stand from stations) |
+| `E` | Interact (pick up / use / sit ) |
 | `Space` | Stand up (resets the current station) |
 | `Esc` | Release the cursor |
 
