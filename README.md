@@ -18,11 +18,11 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 
 | Lab Overview | Safety Cabinet |
 |---|---|
-| ![Lab overview](screenshots/lab-overview.png) | ![Safety cabinet](screenshots/safety-cabinet.png) |
+| ![Safety cabinet](screenshots/safety.png) |
 
 | Chemical Mixing Station | Simple Distillation Station |
 |---|---|
-| ![Chemical mixing chart](screenshots/chemical-mixing-chart.png) | ![Distillation chart](screenshots/distillation-chart.png) |
+| ![Chemical Mixing Station](screenshots/Chemical_mixing.png) | ![Distillation Station](screenshots/distillation.png) |
 
 ---
 
