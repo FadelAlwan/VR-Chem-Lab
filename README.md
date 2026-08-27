@@ -8,9 +8,9 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 
 ## 🎥 Demo Video
 
-[![Watch the demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?logo=youtube)](https://youtu.be/YOUR_VIDEO_ID)
+[![Watch the demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?logo=youtube)](https://youtu.be/DBtwcW0dxFI)
 
-*(Replace `YOUR_VIDEO_ID` above with the actual YouTube link once uploaded.)*
+
 
 ---
 
@@ -42,8 +42,6 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 
 - **Unity 6000.5.5f1** (Unity 6)
 - **C#**
-- **Universal Render Pipeline (URP)**
-- **TextMeshPro** for UI text
 
 ---
 
@@ -99,21 +97,9 @@ Assets/
 └── ...
 ```
 
----
-
-## 👥 Team
-
-Group project for **BER3023 Human-Computer Interaction**:
-
-| Member | Role |
-|---|---|
-| Fadhl Mustafa Alwan | Unity Prototype Developer |
-| Amjad Abbas Mohamed Khairalla | UX Research, Personas & Wireframes |
-| Ahmed Sayed | Requirements & Design Framework |
-| Ahmed Mohamed Ali Zaki Mousa Elseify | Usability Evaluation & Report Compiler |
 
 ---
 
 ## 📄 License
 
-This project was created for educational purposes as part of a university course assignment. Not licensed for commercial use.
+This project was created for educational purposes as part of a university course assignment.
