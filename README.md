@@ -16,13 +16,9 @@ A first-person 3D virtual chemistry lab built in Unity, where first-year chemist
 
 ## 📸 Screenshots
 
-| Safety Cabinet |
-|---|---|
-| ![Safety cabinet](screenshots/safety.png) |
-
-| Chemical Mixing Station | Simple Distillation Station |
-|---|---|
-| ![Chemical Mixing Station](screenshots/Chemical_mixing.png) | ![Distillation Station](screenshots/distillation.png) |
+| Safety Cabinet | Chemical Mixing Station | Simple Distillation Station |
+|---|---|---|
+| ![Safety Cabinet](screenshots/safety.png) | ![Chemical Mixing Station](screenshots/Chemical_mixing.png) | ![Simple Distillation Station](screenshots/distillation.png) |
 
 ---
 
