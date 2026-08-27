@@ -1,8 +1,5 @@
 using UnityEngine;
 
-// The single receiving beaker under the tube. SimpleDistillation calls
-// SetPartialLevel() repeatedly during the drip animation, then ReceiveFraction()
-// once the transfer is complete.
 public class DistillationBeaker : MonoBehaviour
 {
     [Header("Visual")]
@@ -22,14 +19,12 @@ public class DistillationBeaker : MonoBehaviour
         SetLevel(0f);
     }
 
-    // Called repeatedly during the drip animation. t: 0 (empty) to 1 (full).
     public void SetPartialLevel(float t, Color color)
     {
         SetColor(color);
         SetLevel(t);
     }
 
-    // Called once the transfer finishes.
     public void ReceiveFraction(string substanceName, Color color)
     {
         SetColor(color);

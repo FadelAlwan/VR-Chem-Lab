@@ -9,7 +9,7 @@ public class PlayerInteraction : MonoBehaviour
     public TextMeshProUGUI promptText;
 
     [Header("Player Root (drag the Player GameObject that has CharacterController)")]
-    public GameObject playerRoot; // if left empty, falls back to this script's own GameObject
+    public GameObject playerRoot; 
 
     private IInteractable currentTarget;
 

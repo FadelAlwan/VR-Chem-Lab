@@ -1,9 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-// Central place to track whether the student is wearing required safety gear.
-// Attach ONE of these to the Player. Other scripts (like PourController) check
-// SafetyGearManager.Instance.IsFullyEquipped before allowing risky actions.
+
 public class SafetyGearManager : MonoBehaviour
 {
     public static SafetyGearManager Instance;
@@ -14,7 +12,7 @@ public class SafetyGearManager : MonoBehaviour
     public bool hasLabCoat = false;
 
     [Header("Feedback")]
-    public TextMeshProUGUI warningText; // shows exactly what's missing
+    public TextMeshProUGUI warningText;
     public float warningDuration = 2.5f;
 
     void Awake()
@@ -39,7 +37,6 @@ public class SafetyGearManager : MonoBehaviour
         hasLabCoat = true;
     }
 
-    // Call this before any dangerous action (pouring acid, lighting a flame, etc.)
     public bool TryDoRiskyAction()
     {
         if (IsFullyEquipped) return true;
@@ -50,7 +47,6 @@ public class SafetyGearManager : MonoBehaviour
 
     string BuildMissingGearMessage()
     {
-        // Collect exactly which items are missing, in a fixed, readable order.
         System.Collections.Generic.List<string> missing = new System.Collections.Generic.List<string>();
         if (!hasLabCoat) missing.Add("lab coat");
         if (!hasGoggles) missing.Add("safety goggles");

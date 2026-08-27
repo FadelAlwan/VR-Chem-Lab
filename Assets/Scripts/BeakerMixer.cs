@@ -2,10 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 
-// Attach to the Beaker. Cups (CupPourController.cs) call AddChemical() on this when poured.
-// Supports MULTIPLE possible reactions in a single beaker: define a list of Recipes
-// (e.g. A+B=Green, D+E=Red) and the beaker figures out which one matches whatever
-// two chemicals the student pours in, regardless of order.
+
 public class BeakerMixer : MonoBehaviour
 {
     [System.Serializable]
@@ -14,7 +11,7 @@ public class BeakerMixer : MonoBehaviour
         public string chemicalIdA;
         public string chemicalIdB;
         public Color resultColor;
-        public string label; // optional, just for your own reference in the Inspector
+        public string label; 
     }
 
     [Header("Possible Reactions This Beaker Can Produce")]
@@ -27,7 +24,7 @@ public class BeakerMixer : MonoBehaviour
 
     [Header("Feedback")]
     public GameObject successPanel;
-    public TextMeshProUGUI errorText; // shows "Wrong combination!" clearly on screen
+    public TextMeshProUGUI errorText; 
     public float errorDuration = 2.5f;
 
     private readonly List<(string id, Color color)> pouredChemicals = new List<(string, Color)>();
@@ -50,12 +47,12 @@ public class BeakerMixer : MonoBehaviour
         SetLevel(0f, 0f, emptyColor);
     }
 
-    // Called by CupPourController once a pour finishes.
+
     public void AddChemical(string id, Color chemicalColor)
     {
         if (isComplete) return;
 
-        // Same chemical poured twice in a row — treat as a mistake.
+
         foreach (var poured in pouredChemicals)
         {
             if (poured.id == id)
@@ -69,7 +66,7 @@ public class BeakerMixer : MonoBehaviour
 
         if (pouredChemicals.Count == 1)
         {
-            // Preview the first chemical's own color while waiting for the second.
+  
             SetColor(chemicalColor);
             return;
         }
@@ -85,12 +82,11 @@ public class BeakerMixer : MonoBehaviour
             }
             else
             {
-                // The two chemicals poured don't form any known reaction.
+
                 SetColor(invalidMixColor);
                 Debug.Log($"No known reaction between '{firstId}' and '{secondId}'.");
                 ShowError($"Incorrect reaction! {firstId} and {secondId} don't react — check the chart on the wall.");
 
-                // Reset so the student can immediately try a correct pair again.
                 pouredChemicals.Clear();
                 Invoke(nameof(ResetVisualAfterMistake), errorDuration);
             }
@@ -124,7 +120,7 @@ public class BeakerMixer : MonoBehaviour
     {
         isComplete = true;
         SetColor(resultColor);
-        SetLevel(1f, 0f, resultColor); // ensure the level visually reads as "full"
+        SetLevel(1f, 0f, resultColor); 
         Debug.Log("Reaction complete — new compound formed.");
 
         if (successPanel != null) successPanel.SetActive(true);
@@ -154,8 +150,7 @@ public class BeakerMixer : MonoBehaviour
         }
     }
 
-    // Called by CupPourController every frame during a pour to visually raise the
-    // liquid level AND tint it toward the chemical's color as it fills.
+
     public void SetLevel(float baseLevel, float frac, Color previewColor)
     {
         if (liquidRenderer == null) return;
@@ -177,7 +172,6 @@ public class BeakerMixer : MonoBehaviour
         SetColor(previewColor);
     }
 
-    // Call to let the player redo the experiment with fresh chemicals.
     public void ResetBeaker()
     {
         pouredChemicals.Clear();

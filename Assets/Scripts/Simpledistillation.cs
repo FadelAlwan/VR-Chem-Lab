@@ -3,11 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
-// Simple Distillation: ONE mixture (two substances) in a flask, heated.
-// The LOWER-boiling-point substance evaporates and gradually transfers
-// (no particle visual — just the flask/beaker colors and levels changing
-// smoothly over time) into a single receiving beaker. The HIGHER-boiling-
-// point substance stays behind in the flask, at a small remaining amount.
 public class SimpleDistillation : MonoBehaviour
 {
     [System.Serializable]
@@ -29,21 +24,21 @@ public class SimpleDistillation : MonoBehaviour
 
     [Header("Flask Visual (shrinks as the lighter substance evaporates)")]
     public Renderer flaskLiquidRenderer;
-    [Range(0f, 1f)] public float remainingFlaskAmount = 0.15f; // small amount left behind, e.g. 15%
+    [Range(0f, 1f)] public float remainingFlaskAmount = 0.15f; 
 
     [Header("Receiving Beaker (single)")]
     public DistillationBeaker receivingBeaker;
 
     [Header("Transfer Animation")]
-    public float transferDuration = 4f; // how long the color/level change takes
+    public float transferDuration = 4f; 
 
     [Header("UI")]
     public TextMeshProUGUI temperatureText;
     public TextMeshProUGUI hintText;
 
     [Header("Thermometer Slider (optional visual)")]
-    public Slider thermometerSlider; // Min=20, Max=maxTemperature, Direction=Bottom to Top
-    public Image thermometerFill;    // the Slider's Fill image, tints color-blue-to-red
+    public Slider thermometerSlider; 
+    public Image thermometerFill;   
     public Color coldColor = new Color(0.3f, 0.5f, 0.9f);
     public Color hotColor = new Color(0.9f, 0.2f, 0.2f);
 
@@ -141,12 +136,6 @@ public class SimpleDistillation : MonoBehaviour
 
         float currentScaleY = Mathf.Lerp(flaskBaseScaleY, flaskRemainderScaleY, frac);
 
-        // Scale only — no position offset. Many imported liquid meshes already
-        // have their pivot at the BOTTOM (not the center), so scaling alone
-        // keeps the liquid surface dropping naturally without sinking through
-        // the glass. If your liquid mesh instead has a CENTER pivot and this
-        // looks wrong (liquid floating above the bottom instead), let me know
-        // and we'll add the position compensation back for your specific case.
         ft.localScale = new Vector3(ft.localScale.x, currentScaleY, ft.localScale.z);
     }
 
